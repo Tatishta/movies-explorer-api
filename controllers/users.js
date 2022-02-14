@@ -89,8 +89,6 @@ module.exports.login = (req, res, next) => {
         .cookie('jwt', token, {
           maxAge: week,
           httpOnly: false,
-          sameSite: false,
-          secure: false,
         })
         .send({ message: 'Вы успешно авторизировались!' });
     })

@@ -1,9 +1,13 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
+const limiter = require('./middlewares/limiter');
+const NotFoundError = require('./errors/NotFoundError');
 const { validateAuth, validateLogin } = require('./middlewares/validate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
@@ -25,6 +29,7 @@ mongoose.connect('mongodb://localhost:27017/moviesdb', {
 
 app.use(requestLogger);
 app.use(helmet());
+app.use(limiter);
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateAuth, createUser);
@@ -33,11 +38,11 @@ app.use(require('./routes/users'));
 app.use(require('./routes/movies'));
 
 app.post('/signout', (req, res) => {
-  res.status(200).clearCookie('jwt', {
-    httpOnly: false,
-    sameSite: false,
-    secure: false,
-  }).send({ message: 'Успешный выход из приложения' });
+  res.status(200).clearCookie('jwt').send({ message: 'Успешный выход из приложения' });
+});
+
+app.use('*', () => {
+  throw new NotFoundError('Такой страницы не существует, проверьте адрес');
 });
 
 app.use(errorLogger);
