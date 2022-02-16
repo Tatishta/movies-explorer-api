@@ -7,12 +7,9 @@ const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
 const limiter = require('./middlewares/limiter');
-const NotFoundError = require('./errors/NotFoundError');
-const { validateAuth, validateLogin } = require('./middlewares/validate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
-const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+const router = require('./routes/index');
 
 const { NODE_ENV, MONGO } = process.env;
 const { PORT = 3000 } = process.env;
@@ -31,21 +28,7 @@ mongoose.connect(NODE_ENV === 'production' ? MONGO : 'mongodb://localhost:27017/
 app.use(requestLogger);
 app.use(helmet());
 app.use(limiter);
-
-app.post('/signin', validateLogin, login);
-app.post('/signup', validateAuth, createUser);
-app.use(auth);
-app.use(require('./routes/users'));
-app.use(require('./routes/movies'));
-
-app.post('/signout', (req, res) => {
-  res.status(200).clearCookie('jwt').send({ message: 'Успешный выход из приложения' });
-});
-
-app.use('*', () => {
-  throw new NotFoundError('Такой страницы не существует, проверьте адрес');
-});
-
+app.use(router);
 app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
