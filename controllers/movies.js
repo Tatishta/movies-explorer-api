@@ -51,14 +51,13 @@ module.exports.createMovie = (req, res, next) => {
 
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params._id)
-    .orFail(new NotFoundError('Карточка не найдена.'))
-    .then((movieId) => {
-      if (movieId.owner._id.toString() === req.user._id) {
-        Movie.findByIdAndRemove(req.params._id)
-          .then(() => res.send({ message: 'Фильм успешно удалён из сохранённых!' }));
-      } else {
-        next(new ForbiddenError('Не вы сохранили этот фильм, не вам и удалять!'));
+    .orFail(new NotFoundError('Фильм не найден.'))
+    .then((movie) => {
+      if (movie.owner._id.toString() === req.user._id) {
+        return Movie.findByIdAndRemove(req.params._id)
+          .then(() => res.status(200).send({ message: 'Фильм успешно удалён из сохранённых!' }));
       }
+      throw new ForbiddenError('Не вы сохранили этот фильм, не вам и удалять!');
     })
     .catch((err) => {
       if (err.name === 'CastError') {

@@ -36,7 +36,9 @@ module.exports.updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Для изменения данных профиля отправлены некорректные данные.'));
+        next(new ValidationError('Для создания пользователя отправлены некорректные данные.'));
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        next(new ConflictError('Такой email уже занят, попробуйте другой'));
       } else {
         next(err);
       }
@@ -66,7 +68,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Для создания пользователя отправлены некорректные данные.'));
-      } else if (err.name === 'MongoError' && err.code === 11000) {
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
         next(new ConflictError('Такой email уже используется. Введите другой или войдите в свой профиль.'));
       } else {
         next(err);

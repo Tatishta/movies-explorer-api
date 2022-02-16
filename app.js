@@ -14,6 +14,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
+const { NODE_ENV, MONGO } = process.env;
 const { PORT = 3000 } = process.env;
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(NODE_ENV === 'production' ? MONGO : 'mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
 })
   .then(() => console.log('You are connected to MongoDB, yay!'))
