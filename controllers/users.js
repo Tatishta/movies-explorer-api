@@ -83,8 +83,11 @@ module.exports.login = (req, res, next) => {
       );
       res
         .cookie('jwt', token, {
+          domain: '.mymovie.nomoredomains.work',
           maxAge: week,
           httpOnly: false,
+          sameSite: false,
+          secure: false,
         })
         .send({ message: 'Вы успешно авторизировались!' });
     })
@@ -92,5 +95,10 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.logOut = (req, res) => {
-  res.status(200).clearCookie('jwt').send({ message: 'Успешный выход из приложения' });
+  res.status(200).clearCookie('jwt', {
+    domain: '.mymovie.nomoredomains.work',
+    httpOnly: false,
+    sameSite: false,
+    secure: false,
+  }).send({ message: 'Успешный выход из приложения' });
 };

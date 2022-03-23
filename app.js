@@ -27,7 +27,12 @@ mongoose.connect(NODE_ENV === 'production' ? MONGO : 'mongodb://localhost:27017/
   .catch((err) => console.log({ err }));
 
 app.use(requestLogger);
-app.use(cors());
+app.use(cors({
+  origin: ['https://mymovie.nomoredomains.work', 'http://mymovie.nomoredomains.work', 'http://localhost:3000'],
+  allowedHeaders: ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin', 'Content-Type'],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  credentials: true,
+}));
 app.use(helmet());
 app.use(limiter);
 app.use(router);
