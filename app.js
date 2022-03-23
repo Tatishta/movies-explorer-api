@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const cors = require('cors');
 const helmet = require('helmet');
 const limiter = require('./middlewares/limiter');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -26,6 +27,7 @@ mongoose.connect(NODE_ENV === 'production' ? MONGO : 'mongodb://localhost:27017/
   .catch((err) => console.log({ err }));
 
 app.use(requestLogger);
+app.use(cors());
 app.use(helmet());
 app.use(limiter);
 app.use(router);
